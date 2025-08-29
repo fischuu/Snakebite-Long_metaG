@@ -1,0 +1,48 @@
+#################################
+##
+## File configuration configuration
+
+pipeline_folder: "/users/fischerd/git/SNakebite-Long_metaG/"
+
+features-file: "config/features.yaml"
+params-file: "config/params.yaml"
+docker-file: "config/.docker.yml"
+sample-file: "config/samples.tsv"
+sample_longreads-file: "config/samples_longreads.tsv"
+tmp_storage: "$TMP"
+nvme_storage: "$LOCAL_SCRATCH"
+
+#assembler: "metaspades"  # "metaspades" or "megahit". Megahit serves as fall-back in case metaspades cannot create the assemblies
+
+#################################
+##
+## Server configuration
+
+resources:
+# Time allocations in minutes, for rules that run only short, long or very long 
+    time:
+        shortrun: 300 
+        longrun: 4000
+        verylongrun: 20000
+# Memory allocations in MB for different profiles
+    mem_per_cpu:
+        veryhighmem: 1400000
+        quitehighmem: 320000
+        highmem: 160000
+        lowmem: 16000
+# CPU settings for single thread and multi thread jobs
+    cpu_per_task:
+        single_thread: 1
+        multi_thread: 24
+# Partition names for slurm executor
+    partition:
+        testing: "test"
+        small: "small"
+        highmem: "hugemem"
+        longrun: "longrun"
+        highlong: "hugemem_longrun"
+# If your system supports fast nvme disc, set this values, otherwise set to 0 (not tested, as our system has nvme discs!)
+    nvme:
+        small: 10
+        large: 50
+        verylarge: 250

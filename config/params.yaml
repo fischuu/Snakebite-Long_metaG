@@ -1,0 +1,33 @@
+# Execution parameters
+---
+assemble:
+    flye:
+        additional_options: ""
+    medaka:
+        model: ""
+    operams:
+        additional_options: ""
+    spades:
+        kmer_size: ""
+        additional_options: ""
+    strainy:
+        additional_options: ""
+qc:
+    busco:
+        lineage:
+#preprocess:
+#  fastp:
+#    length_required: 25  # nonpareil requires at least 25bp
+#    extra: "--trim_poly_g --trim_poly_x"
+#  bowtie2-build:
+#    memory_gb: 8
+#  bowtie2:
+#    memory_gb: 64
+#    samtools:
+#      mem_per_thread: 1G
+#  kraken2:
+#    memory_gb: 32
+#  nonpareil:
+#    X: 100    #Default: 1000, smaller for testing!!!
+#  humann:
+#    additional_options: "--remove-temp-output"

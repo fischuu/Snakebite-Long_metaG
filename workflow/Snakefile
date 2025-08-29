@@ -1,0 +1,100 @@
+# Main entrypoint of the workflow.
+# Please follow best practices: 
+# https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html
+
+import pandas as pd
+import yaml
+import os
+
+DEBUG = True
+version = "0.1.11"
+
+def debug(msg):
+    if DEBUG:
+        print(f"[DEBUG] {msg}")
+
+debug("Starting workflow setup...")
+debug(f"Workflow version: {version}")
+
+# Load configuration files
+debug("Loading configuration files...")
+
+debug(f"Reading: {config['params-file']}")
+params = yaml.load(open(config["params-file"], "r"), Loader=yaml.SafeLoader)
+
+debug(f"Reading: {config['docker-file']}")
+docker = yaml.load(open(config["docker-file"], "r"), Loader=yaml.SafeLoader)
+
+debug(f"Reading: {config['features-file']}")
+features = yaml.load(open(config["features-file"], "r"), Loader=yaml.SafeLoader)
+
+debug(f"Reading long-reads sample metadata: {config['sample-file']}")
+samples = pd.read_table(config["sample-file"], comment="#", dtype="str")
+
+# Process sample information
+debug("Processing sample metadata...")
+
+samples = (
+    samples.assign(assembly_id=samples.assembly_ids.str.replace(" ", "").str.split(","))
+    .explode("assembly_id")
+    .sort_values(by=["assembly_id", "sample_id", "library_id"])
+)
+samples = samples.assign(assembly_id=samples.assembly_id.str.strip())
+
+debug("Generating global variables from sample metadata...")
+
+SAMPLES = samples.sample_id.unique()
+debug(f"Found {len(SAMPLES)} unique samples.")
+
+SAMPLE_LIBRARY = samples[["sample_id", "library_id"]].values.tolist()
+debug(f"Generated sample-library pairs: {len(SAMPLE_LIBRARY)}")
+
+ASSEMBLY_SAMPLE_LIBRARY = (
+    samples[["assembly_id", "sample_id", "library_id"]].dropna(axis=0).values.tolist()
+)
+debug(f"Generated assembly-sample-library triplets: {len(ASSEMBLY_SAMPLE_LIBRARY)}")
+
+ASSEMBLIES = [
+    assembly_id
+    for assembly_id in samples.assembly_id.unique()
+    if not pd.isna(assembly_id)
+]
+debug(f"Total assemblies: {len(ASSEMBLIES)}")
+
+# Load paths and features
+debug("Loading pipeline-specific paths and feature settings...")
+
+HOST_NAMES = [] if features["hosts"] is None else list(features["hosts"].keys())
+LAST_HOST = HOST_NAMES[-1] if HOST_NAMES else None
+
+debug(f"Host names: {HOST_NAMES}, last host: {LAST_HOST}")
+
+# Import subworkflows
+debug("Including subworkflows...")
+
+include: "rules/__functions__.smk"
+include: "rules/folders.smk"
+include: "rules/busco.smk"
+include: "rules/flye.smk"
+include: "rules/metaquast.smk"
+include: "rules/operams.smk"
+include: "rules/polypolish.smk"
+include: "rules/racon_medaka.smk"
+include: "rules/spades.smk"
+include: "rules/strainy.smk"
+
+debug("Subworkflows included. Ready to run.")
+
+rule all:
+    """Run the entire pipeline"""
+    input:
+        rules.busco.input,
+        rules.flye.input,
+        rules.medaka.input,
+        rules.metaquast.input,
+        rules.operams.input,
+        rules.polypolish.input,
+        rules.spades_hybrid.input,
+        rules.spades_long.input,
+        rules.strainy.input,
+        

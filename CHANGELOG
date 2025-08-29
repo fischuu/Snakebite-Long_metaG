@@ -1,0 +1,19 @@
+# CHANGELOG
+##############
+
+Version 0.1.*:
+--------------
+14: Added the --meta option for flye and removed genome size
+13: Path to OPERA-MS adjusted
+12: Typo in the default params setup fixed
+11: Added the option --memory for spades
+10: Added a rule for polypolish
+9: Added a rule for Metaquast
+8: Added a rule for Strainy
+7: Medaka rule added
+6: Racon rule added
+5: Added Opera-MS rule
+4: Added flye assembler
+3: Added spades for long-only assemblies
+2: Added spades for hybrid assembly
+1: Project started
