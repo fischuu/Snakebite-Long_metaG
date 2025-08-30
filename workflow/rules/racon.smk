@@ -6,7 +6,7 @@ rule racon_run:
         asm=FLYE_LONG / "{assembly_id}.fa.gz",
         long=get_longreads_from_assembly_id,
     output:
-        fa=RACON / "{assembly_id}.racon.fa.gz",
+        fa=RACON / "{assembly_id}.racon.fa",
     log:
         RACON / "{assembly_id}.racon.log",
     container:
@@ -32,5 +32,5 @@ rule racon_run:
 rule racon:
     """Collect all Racon results"""
     input:
-        expand(RACON / "{assembly_id}.racon.fa.gz" , assembly_id=ASSEMBLIES),
+        expand(RACON / "{assembly_id}.racon.fa" , assembly_id=ASSEMBLIES),
         

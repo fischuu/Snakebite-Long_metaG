@@ -1,7 +1,7 @@
 rule medaka_run:
     """Medaka polishing after Racon"""
     input:
-        fa=RACON / "{assembly_id}.racon.fa.gz",
+        fa=RACON / "{assembly_id}.racon.fa",
         long=get_longreads_from_assembly_id,
     output:
         fa=MEDAKA / "{assembly_id}.medaka.fa.gz",
@@ -26,8 +26,9 @@ rule medaka_run:
           -t {threads} \
           -m {params.model} \
           -i {input.long} \
-          -d <(zcat {input.fa}) \
+          -d {input.fa} \
           -o {params.out} 2> {log}
+        
         gzip -c {params.out}/consensus.fasta > {output.fa}
         """
 
