@@ -57,6 +57,7 @@ rule operams__run:
             --short-read1 {output.concatenated_forwards} \
             --short-read2 {output.concatenated_reverses} \
             --long-read {output.uncompressed_long} \
+            --no-ref-clustering \
             --out-dir {params.out_dir} \
         2> {log} 1>&2
 

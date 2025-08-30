@@ -3,6 +3,7 @@ rule strainy__run:
     input:
         assembly=FLYE_LONG / "{assembly_id}.fa.gz",
         long=get_longreads_from_assembly_id,
+        gfa=FLYE_LONG / "{assembly_id}" / "assembly_graph.gfa",
     output:
         fasta=STRAINY / "{assembly_id}.fa.gz",
     log:
@@ -24,15 +25,16 @@ rule strainy__run:
 
         # Run Strainy
         strainy \
-            --reads {input.long} \
-            --assembly <(zcat {input.assembly}) \
+            --gfa_ref {input.gfa} \
+            --fastq {input.long} \
             --threads {threads} \
-            --out-dir {params.out_dir} \
+            --output {params.out_dir} \
+            -m nano \
             {params.additional_options} \
         2> {log} 1>&2
 
         # Compress main output assembly
-        gzip -c {params.out_dir}/strain_assembly.fasta > {output.fasta}
+        gzip -c {params.out_dir}/strain_contigs.gfa > {output.fasta}
         """
         
 

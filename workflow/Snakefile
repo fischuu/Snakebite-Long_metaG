@@ -6,8 +6,8 @@ import pandas as pd
 import yaml
 import os
 
-DEBUG = True
-version = "0.1.11"
+DEBUG = False
+version = "0.1.16"
 
 def debug(msg):
     if DEBUG:
@@ -79,7 +79,8 @@ include: "rules/flye.smk"
 include: "rules/metaquast.smk"
 include: "rules/operams.smk"
 include: "rules/polypolish.smk"
-include: "rules/racon_medaka.smk"
+include: "rules/racon.smk"
+include: "rules/medaka.smk"
 include: "rules/spades.smk"
 include: "rules/strainy.smk"
 
@@ -94,7 +95,6 @@ rule all:
         rules.metaquast.input,
         rules.operams.input,
         rules.polypolish.input,
-        rules.spades_hybrid.input,
-        rules.spades_long.input,
+        rules.spades.input,
         rules.strainy.input,
         

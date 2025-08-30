@@ -3,6 +3,12 @@
 
 Version 0.1.*:
 --------------
+20: Separated the racon and medake files
+19: Fixed the input/output files for strainy
+18: For now, I turned off the ref clustering in operams to see if it works, will turn it on later again
+17: renamed the rules from spades_hybrid to spades
+16: Adjusted the paths for spades that the hybrid run does not have own subfolder anymore
+15: Removed spades_long rule...
 14: Added the --meta option for flye and removed genome size
 13: Path to OPERA-MS adjusted
 12: Typo in the default params setup fixed

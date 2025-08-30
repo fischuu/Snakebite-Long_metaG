@@ -4,6 +4,7 @@ rule flye__run:
         long=get_longreads_from_assembly_id,
     output:
         fasta=FLYE_LONG / "{assembly_id}.fa.gz",
+        gfa=FLYE_LONG / "{assembly_id}" / "assembly_graph.gfa",
     log:
         log=FLYE_LONG / "{assembly_id}.log",
     container:
