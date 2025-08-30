@@ -10,6 +10,11 @@ rule medaka_run:
     container:
         docker["medaka"]
     threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    resources:
+        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
+        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
+        time=config["resources"]["time"]["longrun"],
+        partition=config["resources"]["partition"]["small"],
     params:
         out=MEDAKA / "{assembly_id}.medaka",
         model=params["assemble"]["medaka"]["model"],  # z.B. r1041_e82_400bps_sup_v4.2.0

@@ -12,6 +12,11 @@ rule racon_run:
     container:
         docker["medaka"]
     threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    resources:
+        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
+        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
+        time=config["resources"]["time"]["longrun"],
+        partition=config["resources"]["partition"]["small"],
     params:
         tmp=lambda w: RACON / w.assembly_id,
     shell:
