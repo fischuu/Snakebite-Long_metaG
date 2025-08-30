@@ -3,6 +3,7 @@
 
 Version 0.1.*:
 --------------
+21: Fixed the racon input syntax
 20: Separated the racon and medake files
 19: Fixed the input/output files for strainy
 18: For now, I turned off the ref clustering in operams to see if it works, will turn it on later again
