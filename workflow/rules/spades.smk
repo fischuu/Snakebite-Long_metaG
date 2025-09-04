@@ -17,7 +17,7 @@ rule spades_hybrid__run:
     resources:
         cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
         mem_per_cpu=config["resources"]["mem_per_cpu"]["veryhighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
+        time=config["resources"]["time"]["verylongrun"],
         partition=config["resources"]["partition"]["highlong"],
     params:
         out_dir=lambda w: SPADES_HYBRID / w.assembly_id,

@@ -1,0 +1,28 @@
+A good polishing pipeline with Flye, Racon, Medaka, and Pilon
+1. Assembly with Flye
+Input: raw long reads (ONT or PacBio).
+Process: Flye assembles the reads de novo into contigs using repeat graphs. It is optimized for long, noisy reads and can handle metagenomic complexity.
+Output: a draft assembly — correct in overall structure and continuity, but containing many base-level errors typical of long-read sequencing (especially ONT).
+2. Consensus polishing with Racon
+Input: draft assembly + long reads mapped back to it.
+Process:
+Reads are aligned to the draft assembly.
+At each position, Racon builds a local consensus from the overlapping reads.
+The draft sequence is corrected to match this consensus.
+Role: removes random base-calling errors and larger mismatches by leveraging read redundancy.
+Output: a polished assembly with substantially reduced error rate, but still affected by systematic ONT-specific biases (e.g. homopolymer length errors).
+(Usually 2–3 rounds are performed, each time using the previous polished assembly as input for the next round.)
+3. Neural network–based polishing with Medaka (ONT only)
+Input: racon-polished assembly + ONT reads mapped back.
+Process:
+Medaka applies a neural network model trained on ONT signal data to predict the most likely true sequence.
+It specifically targets systematic error patterns in ONT basecalling (homopolymer indels, biased substitutions).
+Role: improves single-nucleotide and indel accuracy beyond what consensus-based tools like Racon can achieve.
+Output: a sequence with markedly improved per-base accuracy, often >99%.
+4. Short-read–based polishing with Pilon (or similar)
+Input: medaka-polished assembly + highly accurate short reads (Illumina) aligned to it.
+Process:
+Pilon uses the high accuracy of Illumina reads to identify remaining single-base mismatches, small indels, and local misassemblies.
+It makes corrections directly in the assembly sequence.
+Role: final error correction, particularly effective at resolving homopolymers and small indels where ONT/long-read technologies remain error-prone.
+Output: a high-fidelity assembly with structural accuracy from long reads and base-level accuracy from short reads (approaching reference quality).

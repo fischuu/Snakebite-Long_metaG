@@ -3,6 +3,7 @@
 
 Version 0.1.*:
 --------------
+26: Added number of useable processors to operams
 25: Resource allocation for Metaquast added
 24: resource allocation for Polypolish added
 23: Resource allocation for Medaka added
