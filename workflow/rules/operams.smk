@@ -18,8 +18,8 @@ rule operams__run:
     resources:
         cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
         mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        time=config["resources"]["time"]["verylongrun"],
+        partition=config["resources"]["partition"]["longrun"],
     params:
         out_dir=lambda w: OPERAMS_HYBRID / w.assembly_id,
         additional_options=params["assemble"]["operams"]["additional_options"],
@@ -52,6 +52,10 @@ rule operams__run:
         else
             cp {input.long} {output.uncompressed_long}
         fi
+
+        # Set Java ENV variables to avoid a heap memory crash
+        export _JAVA_OPTIONS="-Xmx120g -Xms4g"
+        export JAVA_TOOL_OPTIONS="-Xmx120g -Xms4g"
 
         # Run OPERA-MS
         perl /operams/OPERA-MS.pl \
