@@ -12,9 +12,9 @@ rule medaka_run:
     threads: config["resources"]["cpu_per_task"]["multi_thread"]
     resources:
         cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        mem_per_cpu=config["resources"]["mem_per_cpu"]["veryhighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
+        time=config["resources"]["time"]["verylongrun"],
+        partition=config["resources"]["partition"]["highlong"],
     params:
         out=lambda w: MEDAKA / w.assembly_id,
         #out=MEDAKA / "{assembly_id}.medaka",

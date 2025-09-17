@@ -33,7 +33,7 @@ resources:
 # CPU settings for single thread and multi thread jobs
     cpu_per_task:
         single_thread: 1
-        multi_thread: 24
+        multi_thread: 20
 # Partition names for slurm executor
     partition:
         testing: "test"
