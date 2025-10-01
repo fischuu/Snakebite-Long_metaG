@@ -1,17 +1,26 @@
-# FOR PILON WE NEED TO ALIGN EACH SAMPLE AGAINST THE GENOME WITH BWA AND GET THE BAM
-# WE CAN THEN FEED IT IN WITH MULTIPLE --frags OPTIONS
-# SEE: https://github.com/broadinstitute/pilon/wiki/Requirements-&-Usage
+# helper to collect BAMs for a given assembly
+def bams_for_assembly(wildcards):
+    seen = set()
+    uniq_bams = []
+    for a, s, l in ASSEMBLY_SAMPLE_LIBRARY:
+        if a == wildcards.assembly_id:
+            bam = str(BWA_PAIRED / a / f"{s}.{l}.bam")
+            if bam not in seen:
+                uniq_bams.append(bam)
+                seen.add(bam)
+    return uniq_bams
 
 
-rule pilon__run:
+
+rule pilon_run:
     """Short-read polishing with Pilon"""
     input:
-        asm=MEDAKA / "{assembly_id}.medaka.fa.gz",
-        bam=BWA / "{assembly_id}" / "aln.bam",
+        asm = MEDAKA / "{assembly_id}.medaka.fa.gz",
+        bams = bams_for_assembly,
     output:
-        fa=PILON / "{assembly_id}" / "{assembly_id}.pilon.fa.gz",
+        fa = PILON / "{assembly_id}" / "{assembly_id}.pilon.fa.gz",
     log:
-        PILON / "{assembly_id}.pilon.log",
+        PILON / "{assembly_id}" / "{assembly_id}.pilon.log",
     container:
         docker["pilon"]
     threads: config["resources"]["cpu_per_task"]["multi_thread"]
@@ -21,22 +30,33 @@ rule pilon__run:
         time=config["resources"]["time"]["longrun"],
         partition=config["resources"]["partition"]["small"],
     params:
-        memory=params["assemble"]["pilon"]["memory"],
-        outdir=PILON / "{assembly_id}",
-        pre="{assembly_id}",
-    shell:
-        r"""
-        
+        memory = params["assemble"]["pilon"]["memory"],
+        outdir = lambda w: PILON / w.assembly_id,
+        pre = lambda w: w.assembly_id,
+    shell:"""
+        # build --frags args from the input BAMs
+        frags=""
+        for bam in {input.bams}; do
+            frags="$frags --frags $bam"
+        done
+      
+        mkdir -p {params.outdir}
+
+        gunzip -c {input.asm} > {params.outdir}/asm.fa
+  
         java -Xmx{params.memory} -jar pilon.jar \
-             --genome {input.asm} \
-             --frags short_sorted.bam \
-             --out {params.pre} \
-             --outdir {params.outdir} \
-             --threads {threads} \
-             2> {log} 1>&2
+              --genome {params.outdir}/asm.fa \
+              $frags \
+              --out {params.pre} \
+              --outdir {params.outdir} \
+              --threads {threads} \
+              2> {log}
+        
+        gzip -c {params.outdir}/{params.pre}.fasta > {output.fa}
         """
 
+
 rule pilon:
-    """Collect all Medaka results"""
+    """Collect all Pilon-polished assemblies"""
     input:
         [PILON / f"{assembly_id}" / f"{assembly_id}.pilon.fa.gz" for assembly_id in ASSEMBLIES],

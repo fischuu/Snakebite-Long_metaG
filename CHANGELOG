@@ -3,6 +3,8 @@
 
 Version 0.1.*:
 --------------
+36: Pilon polisher added
+35: Polypolish added
 34: Paired-end reads are now aligned one-by one to each assembly, using the -a option as required by polypolish
 33: Paired-end reads are aligned to each assembly (as needed for pilon polisher)
 32: bwa indices are now created for each assembly
