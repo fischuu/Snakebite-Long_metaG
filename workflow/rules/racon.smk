@@ -1,9 +1,7 @@
-# YOU CAN ALSO USE STRAINY OUTPUT HERE INSTEAD OF FLYE!!!
-
 rule racon_run:
     """1st Racon polishing round on Flye (or Strainy) assembly"""
     input:
-        asm=FLYE_LONG / "{assembly_id}.fa.gz",
+        asm=SEQTK / "{assembly_id}.length_filtered.fa.gz",
         long=get_longreads_from_assembly_id,
     output:
         fa=RACON / "{assembly_id}.racon.fa",
@@ -19,13 +17,21 @@ rule racon_run:
         partition=config["resources"]["partition"]["small"],
     params:
         tmp=lambda w: RACON / w.assembly_id,
+        rounds=params["assemble"]["racon"]["polishing_rounds"],
     shell:
         r"""
         mkdir -p {params.tmp}
-        minimap2 -t {threads} -x map-ont <(zcat {input.asm}) {input.long} \
-           > {params.tmp}/aln.paf 2> {log}
-        racon -t {threads} {input.long} {params.tmp}/aln.paf {input.asm} \
-           > {output.fa} 2>> {log}
+        input_fa={input.asm}
+        
+        # Loop through the steps
+        for i in $(seq 1 {params.rounds}); do
+            minimap2 -t {threads} -x map-ont <(zcat $input_fa) {input.long} > {params.tmp}/aln_$i.paf 2>> {log}
+            racon -t {threads} {input.long} {params.tmp}/aln_$i.paf $input_fa > {params.tmp}/racon_$i.fa 2>> {log}
+            bgzip {params.tmp}/racon_$i.fa
+            input_fa={params.tmp}/racon_$i.fa.gz
+        done
+
+        cp {params.tmp}/racon_{params.rounds}.fa.gz {output.fa}
         """
 
 

@@ -17,6 +17,7 @@ rule flye__run:
         partition=config["resources"]["partition"]["small"],
     params:
         out_dir=lambda w: FLYE_LONG / w.assembly_id,
+        iterations=params["assemble"]["flye"]["polishing_iterations"],
         additional_options=params["assemble"]["flye"]["additional_options"],
     shell:
         """
@@ -24,6 +25,7 @@ rule flye__run:
              --threads {threads} \
              --out-dir {params.out_dir} \
              --meta \
+             --iterations {params.iterations} \
              {params.additional_options} \
               2> {log} 1>&2
 

@@ -1,9 +1,23 @@
+# RUN POLYPOLISH THAT WAY
+# FOR POLYPOLISH, WE NEED TO ALIGN ALL FASTQ SEPARATED WITH THE -a OPTION!!!! SO; ALIGN TO ALL POSITIONS!!!!
+
+# see: https://github.com/rrwick/Polypolish/wiki/How-to-run-Polypolish
+
+bwa index draft.fasta
+bwa mem -t 16 -a draft.fasta reads_a_1.fastq.gz > alignments_a_1.sam
+bwa mem -t 16 -a draft.fasta reads_a_2.fastq.gz > alignments_a_2.sam
+bwa mem -t 16 -a draft.fasta reads_b_1.fastq.gz > alignments_b_1.sam
+bwa mem -t 16 -a draft.fasta reads_b_2.fastq.gz > alignments_b_2.sam
+polypolish filter --in1 alignments_a_1.sam --in2 alignments_a_2.sam --out1 filtered_a_1.sam --out2 filtered_a_2.sam
+polypolish filter --in1 alignments_b_1.sam --in2 alignments_b_2.sam --out1 filtered_b_1.sam --out2 filtered_b_2.sam
+polypolish polish draft.fasta filtered_*.sam > polished.fasta
+
+
 rule polypolish__run:
     """Short-read polishing with Polypolish"""
     input:
         asm=MEDAKA / "{assembly_id}.medaka.fa.gz",
-        r1=get_forwards_from_assembly_id,
-        r2=get_reverses_from_assembly_id,
+        fa=BWA / "{assembly_id}" / "aln.bam",
     output:
         fa=POLYPOLISH / "{assembly_id}.polypolish.fa.gz",
     log:
@@ -20,14 +34,7 @@ rule polypolish__run:
         tmp=POLYPOLISH / "{assembly_id}.pp",
     shell:
         r"""
-        mkdir -p {params.tmp}
-        # Stringentes Mapping für Polypolish:
-        bwa index <(zcat {input.asm}) 2> {log} || true
-        bwa mem -t {threads} <(zcat {input.asm}) {input.r1} {input.r2} \
-          | samtools sort -@ {threads} -o {params.tmp}/aln.bam
-        samtools index {params.tmp}/aln.bam
-        polypolish {params.tmp}/aln.bam <(zcat {input.asm}) \
-          | gzip -c > {output.fa} 2>> {log}
+        polypolish {input.fa} <(zcat {input.asm}) | gzip -c > {output.fa} 2>> {log}
         """
 
 rule polypolish:

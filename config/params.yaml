@@ -1,8 +1,17 @@
 # Execution parameters
 ---
+fastp:
+    length_required: 25  # nonpareil requires at least 25bp
+    extra: "--trim_poly_g --trim_poly_x"
+    
 assemble:
     flye:
+        polishing_iterations: 0
         additional_options: ""
+    seqtk:
+        kept_length: 1000
+    racon:
+        polishing_rounds: 3
     medaka:
         model: "r1041_e82_400bps_sup_v4.2.0"
     operams:
@@ -12,6 +21,8 @@ assemble:
         additional_options: ""
     strainy:
         additional_options: ""
+    pilon:
+        memory: "120G"
 qc:
     busco:
         lineage:

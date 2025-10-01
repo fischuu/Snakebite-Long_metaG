@@ -3,6 +3,10 @@
 
 Version 0.1.*:
 --------------
+31: polished.fasta from operams are now properly written into the output folder
+30: contig.fa from spades is now written into the result folder properly
+29: Fastp short read quality trimming step added
+28: Linking reads as first step added
 27: Fixed the resource allocation for operams
 26: Added number of useable processors to operams
 25: Resource allocation for Metaquast added

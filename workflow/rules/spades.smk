@@ -6,7 +6,6 @@ rule spades_hybrid__run:
         reverses=get_reverses_from_assembly_id,
     output:
         fasta=SPADES_HYBRID / "{assembly_id}.fa.gz",
-        tarball=SPADES_HYBRID / "{assembly_id}.tar.gz",
         concatenated_forwards=temp(SPADES_HYBRID / "{assembly_id}_R1_concat.fastq.gz"),
         concatenated_reverses=temp(SPADES_HYBRID / "{assembly_id}_R2_concat.fastq.gz"),
     log:
@@ -44,6 +43,8 @@ rule spades_hybrid__run:
             -2 {output.concatenated_reverses} \
             -o {params.out_dir} \
         2> {log} 1>&2
+        
+        gzip -c {params.out_dir}/contigs.fasta > {output.fasta}
         """
         
 rule spades:

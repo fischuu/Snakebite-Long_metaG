@@ -6,7 +6,6 @@ rule operams__run:
         reverses=get_reverses_from_assembly_id,
     output:
         fasta=OPERAMS_HYBRID / "{assembly_id}.fa.gz",
-        tarball=OPERAMS_HYBRID / "{assembly_id}.tar.gz",
         concatenated_forwards=temp(OPERAMS_HYBRID / "{assembly_id}_R1_concat.fastq"),
         concatenated_reverses=temp(OPERAMS_HYBRID / "{assembly_id}_R2_concat.fastq"),
         uncompressed_long=temp(OPERAMS_HYBRID / "{assembly_id}_longreads.fastq"),
@@ -54,8 +53,8 @@ rule operams__run:
         fi
 
         # Set Java ENV variables to avoid a heap memory crash
-        export _JAVA_OPTIONS="-Xmx120g -Xms4g"
-        export JAVA_TOOL_OPTIONS="-Xmx120g -Xms4g"
+        export _JAVA_OPTIONS="-Xmx360g -Xms4g"
+        export JAVA_TOOL_OPTIONS="-Xmx360g -Xms4g"
 
         # Run OPERA-MS
         perl /operams/OPERA-MS.pl \
@@ -68,7 +67,7 @@ rule operams__run:
         2> {log} 1>&2
 
         # Compress final assembly
-        gzip -c {params.out_dir}/final_assembly.fasta > {output.fasta}
+        gzip -c {params.out_dir}/contigs.polished.fasta > {output.fasta}
         """
 
 
