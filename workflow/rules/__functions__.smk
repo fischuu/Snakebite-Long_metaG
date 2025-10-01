@@ -136,3 +136,22 @@ def aggregate_reverses_for_bwa(wildcards):
         for reverse_ in get_fastp_reads_from_assembly_id(wildcards, end="reverse")
     ]
     return ",".join(reverses)
+
+
+# helper to collect unique filtered SAMs for a given assembly (preserves order)
+def filtered_sams_for_assembly(wildcards):
+    paths = []
+    for a, sample, library in ASSEMBLY_SAMPLE_LIBRARY:
+        if a == wildcards.assembly_id:
+            for read in (1, 2):
+                # match the naming you showed: sample.library_read.filtered.sam
+                p = POLYPOLISH / a / f"{sample}.{library}_{read}.filtered.sam"
+                paths.append(str(p))
+    # dedupe while preserving order
+    seen = set()
+    uniq = []
+    for p in paths:
+        if p not in seen:
+            uniq.append(p)
+            seen.add(p)
+    return uniq

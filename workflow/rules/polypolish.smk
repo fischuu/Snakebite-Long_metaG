@@ -1,23 +1,31 @@
-# RUN POLYPOLISH THAT WAY
-# FOR POLYPOLISH, WE NEED TO ALIGN ALL FASTQ SEPARATED WITH THE -a OPTION!!!! SO; ALIGN TO ALL POSITIONS!!!!
+rule polypolish_filter:
+    """Filter SAM alignments for Polypolish"""
+    input:
+        sam_1=BWA_SINGLE / "{assembly_id}" / "{sample_id}.{library_id}_1.sam",
+        sam_2=BWA_SINGLE / "{assembly_id}" / "{sample_id}.{library_id}_2.sam",
+    output:
+        filt_1=POLYPOLISH / "{assembly_id}" / "{sample_id}.{library_id}_1.filtered.sam",
+        filt_2=POLYPOLISH / "{assembly_id}" / "{sample_id}.{library_id}_2.filtered.sam",
+    log:
+        POLYPOLISH / "{assembly_id}" / "{sample_id}.{library_id}.filter.log",
+    container:
+        docker["polypolish"]
+    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    shell:
+        r"""
+        # mkdir -p $(dirname {output.filt_1})
+        polypolish filter \
+            --in1 {input.sam_1} --in2 {input.sam_2} \
+            --out1 {output.filt_1} --out2 {output.filt_2} \
+            2>> {log}
+        """
 
-# see: https://github.com/rrwick/Polypolish/wiki/How-to-run-Polypolish
 
-bwa index draft.fasta
-bwa mem -t 16 -a draft.fasta reads_a_1.fastq.gz > alignments_a_1.sam
-bwa mem -t 16 -a draft.fasta reads_a_2.fastq.gz > alignments_a_2.sam
-bwa mem -t 16 -a draft.fasta reads_b_1.fastq.gz > alignments_b_1.sam
-bwa mem -t 16 -a draft.fasta reads_b_2.fastq.gz > alignments_b_2.sam
-polypolish filter --in1 alignments_a_1.sam --in2 alignments_a_2.sam --out1 filtered_a_1.sam --out2 filtered_a_2.sam
-polypolish filter --in1 alignments_b_1.sam --in2 alignments_b_2.sam --out1 filtered_b_1.sam --out2 filtered_b_2.sam
-polypolish polish draft.fasta filtered_*.sam > polished.fasta
-
-
-rule polypolish__run:
-    """Short-read polishing with Polypolish"""
+rule polypolish_run:
+    """Run Polypolish polishing on all filtered SAMs for an assembly"""
     input:
         asm=MEDAKA / "{assembly_id}.medaka.fa.gz",
-        fa=BWA / "{assembly_id}" / "aln.bam",
+        sams = filtered_sams_for_assembly,
     output:
         fa=POLYPOLISH / "{assembly_id}.polypolish.fa.gz",
     log:
@@ -25,19 +33,17 @@ rule polypolish__run:
     container:
         docker["polypolish"]
     threads: config["resources"]["cpu_per_task"]["multi_thread"]
-    resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
     params:
-        tmp=POLYPOLISH / "{assembly_id}.pp",
+        tmp=POLYPOLISH / "{assembly_id}.tmp"
     shell:
         r"""
-        polypolish {input.fa} <(zcat {input.asm}) | gzip -c > {output.fa} 2>> {log}
+        mkdir -p $(dirname {output.fa})
+        polypolish polish <(zcat {input.asm}) {input.sams} \
+            | gzip -c > {output.fa} 2>> {log}
         """
 
+
 rule polypolish:
-    """Collect all Medaka results"""
+    """Collect all polished assemblies"""
     input:
         [POLYPOLISH / f"{assembly_id}.polypolish.fa.gz" for assembly_id in ASSEMBLIES],
