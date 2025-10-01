@@ -6,6 +6,9 @@ READS = Path("reads/")
 WD = os.getcwd()
 
 BWA = Path("results/bwa/")
+BWA_INDEX = BWA / "index/"
+BWA_PAIRED = BWA / "paired/"
+BWA_SINGLE = BWA / "single/"
 COMPARE = Path("results/metaquast/")
 FASTP = Path("results/fastp")
 FLYE_LONG = Path("results/flye/")

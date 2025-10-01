@@ -3,6 +3,9 @@
 
 Version 0.1.*:
 --------------
+34: Paired-end reads are now aligned one-by one to each assembly, using the -a option as required by polypolish
+33: Paired-end reads are aligned to each assembly (as needed for pilon polisher)
+32: bwa indices are now created for each assembly
 31: polished.fasta from operams are now properly written into the output folder
 30: contig.fa from spades is now written into the result folder properly
 29: Fastp short read quality trimming step added

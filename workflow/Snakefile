@@ -75,7 +75,7 @@ debug("Including subworkflows...")
 include: "rules/__functions__.smk"
 include: "rules/folders.smk"
 include: "rules/link.smk"
-#include: "rules/bwa.smk"
+include: "rules/bwa.smk"
 include: "rules/fastp.smk"
 include: "rules/busco.smk"
 include: "rules/flye.smk"
