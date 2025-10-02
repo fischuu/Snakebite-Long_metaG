@@ -18,7 +18,7 @@ rule pilon_run:
         asm = MEDAKA / "{assembly_id}.medaka.fa.gz",
         bams = bams_for_assembly,
     output:
-        fa = PILON / "{assembly_id}" / "{assembly_id}.pilon.fa.gz",
+        fa = PILON / "{assembly_id}.pilon.fa.gz",
     log:
         PILON / "{assembly_id}" / "{assembly_id}.pilon.log",
     container:

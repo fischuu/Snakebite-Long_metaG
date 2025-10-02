@@ -7,7 +7,7 @@ fastp:
 assemble:
     flye:
         polishing_iterations: 0
-        additional_options: ""
+        additional_options: "--keep-haplotypes --no-alt-contigs"
     seqtk:
         kept_length: 1000
     racon:

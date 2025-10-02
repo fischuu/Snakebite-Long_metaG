@@ -77,7 +77,6 @@ include: "rules/folders.smk"
 include: "rules/link.smk"
 include: "rules/bwa.smk"
 include: "rules/fastp.smk"
-#include: "rules/busco.smk"
 include: "rules/flye.smk"
 include: "rules/seqtk.smk"
 include: "rules/metaquast.smk"
@@ -94,13 +93,9 @@ debug("Subworkflows included. Ready to run.")
 rule all:
     """Run the entire pipeline"""
     input:
-#        rules.busco.input,
- #       rules.flye.input,
-#        rules.medaka.input,
 #        rules.metaquast.input,
         rules.operams.input,
         rules.polypolish.input,
         rules.pilon.input,
         rules.spades.input,
         rules.strainy.input,
-        
