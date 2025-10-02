@@ -9,12 +9,15 @@ rule flye__run:
         log=FLYE_LONG / "{assembly_id}.log",
     container:
         docker["flye"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "flye__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "flye__run"),
+        mem_mb=esc("mem_mb", "flye__run"),
+        cpus_per_task=esc("cpus", "flye__run"),
+        slurm_partition=esc("partition", "flye__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'flye__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("flye__run"))
     params:
         out_dir=lambda w: FLYE_LONG / w.assembly_id,
         iterations=params["assemble"]["flye"]["polishing_iterations"],

@@ -69,6 +69,16 @@ LAST_HOST = HOST_NAMES[-1] if HOST_NAMES else None
 
 debug(f"Host names: {HOST_NAMES}, last host: {LAST_HOST}")
 
+# --- Load one-line comma-separated ESCALATION config ---
+with open("config/escalation.yaml") as f:
+    raw = yaml.safe_load(f)
+
+ESCALATION_CONFIG = {k: [x.strip() for x in v.split(",")] for k, v in raw.items()}
+
+# Define local rules:
+localrules:
+    reads__link_run
+
 # Import subworkflows
 debug("Including subworkflows...")
 
@@ -93,9 +103,9 @@ debug("Subworkflows included. Ready to run.")
 rule all:
     """Run the entire pipeline"""
     input:
-#        rules.metaquast.input,
+        rules.metaquast.input,
         rules.operams.input,
         rules.polypolish.input,
         rules.pilon.input,
         rules.spades.input,
-        rules.strainy.input,
+#        rules.strainy.input,

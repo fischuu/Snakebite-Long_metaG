@@ -9,15 +9,17 @@ rule medaka_run:
         MEDAKA / "{assembly_id}.medaka.log",
     container:
         docker["medaka"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "medaka_run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["veryhighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["verylongrun"],
-        partition=config["resources"]["partition"]["highlong"],
+        runtime=esc("runtime", "medaka_run"),
+        mem_mb=esc("mem_mb", "medaka_run"),
+        cpus_per_task=esc("cpus", "medaka_run"),
+        slurm_partition=esc("partition", "medaka_run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'medaka_run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("medaka_run"))
     params:
         out=lambda w: MEDAKA / w.assembly_id,
-        #out=MEDAKA / "{assembly_id}.medaka",
         model=params["assemble"]["medaka"]["model"],  # z.B. r1041_e82_400bps_sup_v4.2.0
     shell:
         r"""

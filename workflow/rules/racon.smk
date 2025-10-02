@@ -9,12 +9,15 @@ rule racon_run:
         RACON / "{assembly_id}.racon.log",
     container:
         docker["medaka"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "racon_run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "racon_run"),
+        mem_mb=esc("mem_mb", "racon_run"),
+        cpus_per_task=esc("cpus", "racon_run"),
+        slurm_partition=esc("partition", "racon_run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'racon_run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("racon_run"))
     params:
         tmp=lambda w: RACON / w.assembly_id,
         rounds=params["assemble"]["racon"]["polishing_rounds"],

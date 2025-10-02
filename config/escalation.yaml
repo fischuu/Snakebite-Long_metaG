@@ -1,0 +1,16 @@
+bwa_index__run: medium,large,highmem,longrun,highmem_longrun
+bwa_pe__run: medium,large,highmem,longrun,highmem_longrun
+bwa_se__run: medium,large,highmem,longrun,highmem_longrun
+compare_assemblies__quast: large,highmem,longrun,highmem_longrun
+flye__run: medium,large,highmem,longrun,highmem_longrun
+medaka_run: highmem,longrun,highmem_longrun
+operams__run: longrun,highmem_longrun
+pilon_run: medium,large,highmem,longrun,highmem_longrun
+polypolish_filter: medium,large,highmem,longrun,highmem_longrun
+polypolish_run: medium,large,highmem,longrun,highmem_longrun
+preprocess__fastp__run: medium,large,highmem,longrun,highmem_longrun
+racon_run: medium,large,highmem,longrun,highmem_longrun
+reads__link_run: small,medium,large,highmem,longrun,highmem_longrun
+seqtk__run: medium,large,highmem,longrun,highmem_longrun
+spades_hybrid__run: large,highmem,longrun,highmem_longrun
+strainy__run: medium,large,highmem,longrun,highmem_longrun

@@ -14,15 +14,18 @@ rule compare_assemblies__quast:
         COMPARE / "{assembly_id}/quast.log",
     container:
         docker["metaquast"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "compare_assemblies__quast")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "compare_assemblies__quast"),
+        mem_mb=esc("mem_mb", "compare_assemblies__quast"),
+        cpus_per_task=esc("cpus", "compare_assemblies__quast"),
+        slurm_partition=esc("partition", "compare_assemblies__quast"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'compare_assemblies__quast')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("compare_assemblies__quast"))
     params:
         out_dir=lambda w: COMPARE / w.assembly_id,
-        racon_rounds=lambda w: ",".join(
+        racon_rounds=lambda w: " ".join(
             str(RACON / w.assembly_id / f"racon_{i}.fa.gz")
             for i in range(1, params["assemble"]["racon"]["polishing_rounds"] + 1)
         ),
@@ -30,17 +33,14 @@ rule compare_assemblies__quast:
         r"""
         mkdir -p {params.out_dir}
         metaquast.py -t {threads} \
-            -r {input.flye} \
-            -r {input.polypolish} \
-            -r {input.operams} \
-            -r {input.spades} \
-            -r {input.pilon} \
-            -r {input.medaka} \
-            -r {params.racon_rounds} \
+            {input.flye} \
+            {input.polypolish} \
+            {input.operams} \
+            {input.spades} \
+            {input.pilon} \
+            {input.medaka} \
+            {params.racon_rounds} \
             -o {params.out_dir} > {log} 2>&1
-
-        # metaQUAST schreibt report.html in out_dir
-        cp {params.out_dir}/report.html {output.report}
         """
 
 rule metaquast:

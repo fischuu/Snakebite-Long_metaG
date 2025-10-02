@@ -13,12 +13,15 @@ rule operams__run:
         log=OPERAMS_HYBRID / "{assembly_id}.log",
     container:
         docker["operams"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "operams__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["verylongrun"],
-        partition=config["resources"]["partition"]["longrun"],
+        runtime=esc("runtime", "operams__run"),
+        mem_mb=esc("mem_mb", "operams__run"),
+        cpus_per_task=esc("cpus", "operams__run"),
+        slurm_partition=esc("partition", "operams__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'operams__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("operams__run"))
     params:
         out_dir=lambda w: OPERAMS_HYBRID / w.assembly_id,
         additional_options=params["assemble"]["operams"]["additional_options"],

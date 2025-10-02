@@ -8,12 +8,15 @@ rule bwa_index__run:
         BWA_INDEX / "{assembly_id}.log",
     container:
         docker["polypolish"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "bwa_index__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "bwa_index__run"),
+        mem_mb=esc("mem_mb", "bwa_index__run"),
+        cpus_per_task=esc("cpus", "bwa_index__run"),
+        slurm_partition=esc("partition", "bwa_index__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'bwa_index__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("bwa_index__run"))
     params:
         tmp=lambda w: BWA_INDEX / w.assembly_id,
     shell:
@@ -48,12 +51,15 @@ rule bwa_pe__run:
         BWA_PAIRED / "{assembly_id}" / "{sample_id}.{library_id}.bwa.log",
     container:
         docker["polypolish"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "bwa_pe__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "bwa_pe__run"),
+        mem_mb=esc("mem_mb", "bwa_pe__run"),
+        cpus_per_task=esc("cpus", "bwa_pe__run"),
+        slurm_partition=esc("partition", "bwa_pe__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'bwa_pe__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("bwa_pe__run"))    
     params:
         index=lambda w: BWA_INDEX / w.assembly_id,
         tmp=lambda w: BWA_PAIRED / w.assembly_id,
@@ -92,12 +98,15 @@ rule bwa_se__run:
         BWA_SINGLE / "{assembly_id}" / "{sample_id}.{library_id}.bwa.log",
     container:
         docker["polypolish"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "bwa_se__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "bwa_se__run"),
+        mem_mb=esc("mem_mb", "bwa_se__run"),
+        cpus_per_task=esc("cpus", "bwa_se__run"),
+        slurm_partition=esc("partition", "bwa_se__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'bwa_se__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("bwa_se__run"))
     params:
         index=lambda w: BWA_INDEX / w.assembly_id,
         tmp=lambda w: BWA_SINGLE / w.assembly_id,

@@ -25,12 +25,15 @@ rule preprocess__fastp__run:
         temp_reverse_=lambda w: FASTP / f"{w.sample_id}.{w.library_id}_tmp_2.fq",
         temp_unpaired1=lambda w: FASTP / f"{w.sample_id}.{w.library_id}_tmp_u1.fq",
         temp_unpaired2=lambda w: FASTP / f"{w.sample_id}.{w.library_id}_tmp_u2.fq",
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "preprocess__fastp__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "preprocess__fastp__run"),
+        mem_mb=esc("mem_mb", "preprocess__fastp__run"),
+        cpus_per_task=esc("cpus", "preprocess__fastp__run"),
+        slurm_partition=esc("partition", "preprocess__fastp__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'preprocess__fastp__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("preprocess__fastp__run"))
     shell: """
         fastp \
             --in1 {input.forward_} \
@@ -72,7 +75,7 @@ rule preprocess__fastp__run:
         echo "Integrity check completed" >> {log}
     """
 
-# ---------- preprocess__fastp ----------
+
 rule fastp:
     """Aggregate all fastp outputs"""
     input:

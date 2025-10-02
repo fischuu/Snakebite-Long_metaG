@@ -8,12 +8,15 @@ rule seqtk__run:
         log=SEQTK / "{assembly_id}.log",
     container:
         docker["seqtk"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "seqtk__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "seqtk__run"),
+        mem_mb=esc("mem_mb", "seqtk__run"),
+        cpus_per_task=esc("cpus", "seqtk__run"),
+        slurm_partition=esc("partition", "seqtk__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'seqtk__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("seqtk__run"))
     params:
         out_dir=lambda w: FLYE_LONG / w.assembly_id,
         additional_options=params["assemble"]["seqtk"]["kept_length"],

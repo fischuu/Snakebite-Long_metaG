@@ -10,7 +10,15 @@ rule polypolish_filter:
         POLYPOLISH / "{assembly_id}" / "{sample_id}.{library_id}.filter.log",
     container:
         docker["polypolish"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "polypolish_filter")
+    resources:
+        runtime=esc("runtime", "polypolish_filter"),
+        mem_mb=esc("mem_mb", "polypolish_filter"),
+        cpus_per_task=esc("cpus", "polypolish_filter"),
+        slurm_partition=esc("partition", "polypolish_filter"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'polypolish_filter')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("polypolish_filter"))
     shell:
         r"""
         # mkdir -p $(dirname {output.filt_1})
@@ -32,7 +40,15 @@ rule polypolish_run:
         POLYPOLISH / "{assembly_id}.polypolish.log",
     container:
         docker["polypolish"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "polypolish_run")
+    resources:
+        runtime=esc("runtime", "polypolish_run"),
+        mem_mb=esc("mem_mb", "polypolish_run"),
+        cpus_per_task=esc("cpus", "polypolish_run"),
+        slurm_partition=esc("partition", "polypolish_run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'polypolish_run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("polypolish_run"))
     params:
         tmp=POLYPOLISH / "{assembly_id}.tmp"
     shell:

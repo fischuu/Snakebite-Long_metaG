@@ -12,12 +12,15 @@ rule spades_hybrid__run:
         log=SPADES_HYBRID / "{assembly_id}.log",
     container:
         docker["assemble"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "spades_hybrid__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["veryhighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["verylongrun"],
-        partition=config["resources"]["partition"]["highlong"],
+        runtime=esc("runtime", "spades_hybrid__run"),
+        mem_mb=esc("mem_mb", "spades_hybrid__run"),
+        cpus_per_task=esc("cpus", "spades_hybrid__run"),
+        slurm_partition=esc("partition", "spades_hybrid__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'spades_hybrid__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("spades_hybrid__run"))
     params:
         out_dir=lambda w: SPADES_HYBRID / w.assembly_id,
         kmer_size=params["assemble"]["spades"]["kmer_size"],

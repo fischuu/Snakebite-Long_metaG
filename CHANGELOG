@@ -3,6 +3,8 @@
 
 Version 0.1.*:
 --------------
+41: Slurm executor included
+40: Resource escalation system added
 39: Metaquast added
 38: Output for Pilon adjusted
 37: Output for polypolish adjusted

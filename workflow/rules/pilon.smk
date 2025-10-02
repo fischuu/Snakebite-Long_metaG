@@ -23,12 +23,15 @@ rule pilon_run:
         PILON / "{assembly_id}" / "{assembly_id}.pilon.log",
     container:
         docker["pilon"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "pilon_run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["highmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "pilon_run"),
+        mem_mb=esc("mem_mb", "pilon_run"),
+        cpus_per_task=esc("cpus", "pilon_run"),
+        slurm_partition=esc("partition", "pilon_run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'pilon_run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("pilon_run"))
     params:
         memory = params["assemble"]["pilon"]["memory"],
         outdir = lambda w: PILON / w.assembly_id,

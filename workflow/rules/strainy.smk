@@ -10,12 +10,15 @@ rule strainy__run:
         log=STRAINY / "{assembly_id}.log",
     container:
         docker["flye"]
-    threads: config["resources"]["cpu_per_task"]["multi_thread"]
+    threads: esc("cpus", "strainy__run")
     resources:
-        cpu_per_task=config["resources"]["cpu_per_task"]["multi_thread"],
-        mem_per_cpu=config["resources"]["mem_per_cpu"]["quitehighmem"] // config["resources"]["cpu_per_task"]["multi_thread"],
-        time=config["resources"]["time"]["longrun"],
-        partition=config["resources"]["partition"]["small"],
+        runtime=esc("runtime", "strainy__run"),
+        mem_mb=esc("mem_mb", "strainy__run"),
+        cpus_per_task=esc("cpus", "strainy__run"),
+        slurm_partition=esc("partition", "strainy__run"),
+        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'strainy__run')['nvme']}",
+        attempt=get_attempt,
+    retries: len(get_escalation_order("strainy__run"))
     params:
         out_dir=lambda w: STRAINY / w.assembly_id,
         additional_options=params["assemble"]["strainy"]["additional_options"],
