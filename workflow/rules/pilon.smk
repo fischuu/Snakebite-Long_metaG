@@ -40,19 +40,21 @@ rule pilon_run:
             frags="$frags --frags $bam"
         done
       
-        mkdir -p {params.outdir}
-
         gunzip -c {input.asm} > {params.outdir}/asm.fa
   
-        java -Xmx{params.memory} -jar pilon.jar \
-              --genome {params.outdir}/asm.fa \
+        # Export Java memory options
+        export _JAVA_OPTIONS="-Xmx{params.memory} -Xms4g"
+        export JAVA_TOOL_OPTIONS="-Xmx{params.memory} -Xms4g"
+      
+        pilon --genome {params.outdir}/asm.fa \
               $frags \
-              --out {params.pre} \
+              --output {params.pre} \
               --outdir {params.outdir} \
               --threads {threads} \
               2> {log}
         
         gzip -c {params.outdir}/{params.pre}.fasta > {output.fa}
+        rm {params.outdir}/{params.pre}.fasta
         """
 
 

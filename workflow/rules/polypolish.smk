@@ -37,8 +37,7 @@ rule polypolish_run:
         tmp=POLYPOLISH / "{assembly_id}.tmp"
     shell:
         r"""
-        mkdir -p $(dirname {output.fa})
-        polypolish polish <(zcat {input.asm}) {input.sams} \
+        polypolish polish {input.asm} {input.sams} \
             | gzip -c > {output.fa} 2>> {log}
         """
 

@@ -3,6 +3,7 @@
 
 Version 0.1.*:
 --------------
+37: Output for polypolish adjusted
 36: Pilon polisher added
 35: Polypolish added
 34: Paired-end reads are now aligned one-by one to each assembly, using the -a option as required by polypolish
