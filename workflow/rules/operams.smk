@@ -65,7 +65,7 @@ rule operams__run:
             --short-read2 {output.concatenated_reverses} \
             --long-read {output.uncompressed_long} \
             --no-ref-clustering \
-            --num-processors {params.cpus} \
+            --num-processors {threads} \
             --out-dir {params.out_dir} \
         2> {log} 1>&2
 
