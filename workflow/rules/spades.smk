@@ -28,7 +28,6 @@ rule spades_hybrid__run:
         forwards=aggregate_forwards_for_spades,
         reverses=aggregate_reverses_for_spades,
         assembly_id=lambda w: w.assembly_id,
-        memory = int(config["resources"]["mem_per_cpu"]["veryhighmem"] / 1024),
     shell:
         """
         # Concatenate forward reads into a single file
@@ -40,7 +39,7 @@ rule spades_hybrid__run:
         spades.py \
             --meta \
             -t {threads} \
-            --memory {params.memory} \
+            --memory {resources.mem_mb} \
             --nanopore {input.long} \
             -1 {output.concatenated_forwards} \
             -2 {output.concatenated_reverses} \
