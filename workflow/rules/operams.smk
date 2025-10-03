@@ -27,7 +27,6 @@ rule operams__run:
         additional_options=params["assemble"]["operams"]["additional_options"],
         forwards=aggregate_forwards_for_spades,
         reverses=aggregate_reverses_for_spades,
-        cpus=config["resources"]["cpu_per_task"]["multi_thread"],
     shell:
         """
         # Concatenate and uncompress forward reads
