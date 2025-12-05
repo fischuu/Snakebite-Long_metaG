@@ -4,6 +4,9 @@ bwa_se__run: medium,large,highmem,longrun,highmem_longrun
 compare_assemblies__quast: large,highmem,longrun,highmem_longrun
 flye__run: medium,large,highmem,longrun,highmem_longrun
 medaka_run: highmem,longrun,highmem_longrun
+medaka__mini_align: medium,large,highmem,longrun,highmem_longrun
+medaka_sequence: medium,large,highmem,longrun,highmem_longrun
+medaka_inference_chunk: medium,large,highmem,longrun,highmem_longrun
 operams__run: longrun,highmem_longrun
 pilon_run: medium,large,highmem,longrun,highmem_longrun
 polypolish_filter: medium,large,highmem,longrun,highmem_longrun

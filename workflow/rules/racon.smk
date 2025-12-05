@@ -4,7 +4,7 @@ rule racon_run:
         asm=SEQTK / "{assembly_id}.length_filtered.fa.gz",
         long=get_longreads_from_assembly_id,
     output:
-        fa=RACON / "{assembly_id}.racon.fa",
+        fa=RACON / "{assembly_id}.racon.fa.gz",
     log:
         RACON / "{assembly_id}.racon.log",
     container:
@@ -41,5 +41,5 @@ rule racon_run:
 rule racon:
     """Collect all Racon results"""
     input:
-        expand(RACON / "{assembly_id}.racon.fa" , assembly_id=ASSEMBLIES),
+        expand(RACON / "{assembly_id}.racon.fa.gz" , assembly_id=ASSEMBLIES),
         

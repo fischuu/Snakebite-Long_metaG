@@ -19,10 +19,8 @@ rule reads__link_run:
         """
 
 rule reads__link:
-    """Link all reads in the samples.tsv"""
     input:
-        [
-            READS / f"{sample}.{library}_{end}.fq.gz"
-            for sample, library in SAMPLE_LIBRARY
-            for end in ["1", "2"]
-        ],
+        expand(READS / "{sample}.{library}_{end}.fq.gz",
+               sample=[s for s,_ in SAMPLE_LIBRARY],
+               library=[l for _,l in SAMPLE_LIBRARY],
+               end=["1","2"])

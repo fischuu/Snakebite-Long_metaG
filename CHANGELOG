@@ -3,6 +3,8 @@
 
 Version 0.1.*:
 --------------
+43: Medaka is now running resource effective (inference on a single thread only...)
+42: Output bugfix for racon (fa.gz instead of fa)
 41: Slurm executor included
 40: Resource escalation system added
 39: Metaquast added

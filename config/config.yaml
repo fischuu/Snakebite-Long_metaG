@@ -28,11 +28,11 @@ resource_sets:
     nvme: "nvme:0"
 
   medium:
-    runtime: 4000
+    runtime: 2000
     mem_mb: 160000
     cpus: 10
     partition: "small"
-    nvme: "nvme:10"
+    nvme: "nvme:0"
     
   large:
     runtime: 4000
