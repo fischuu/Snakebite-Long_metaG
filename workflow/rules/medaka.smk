@@ -36,7 +36,7 @@ rule extract_regions:
         regions = MEDAKA / "{assembly_id}/regions.txt"
     shell:
         r"""
-        gunzip -c {input.fa} | grep '^>' | sed 's/>//' > {output.regions}
+        gunzip -c {input.fa} | grep '^>' | cut -d' ' -f1 | sed 's/>//' > {output.regions}
         """
 
 
@@ -64,7 +64,8 @@ def get_medaka_chunks(wildcards):
 rule medaka_inference_chunk:
     input:
         bam = MEDAKA / "{assembly_id}.calls_to_draft.bam",
-        chunk = MEDAKA / "{assembly_id}/chunks/chunk_{chunk}"
+        chunk = MEDAKA / "{assembly_id}/chunks/chunk_{chunk}",
+        regions = MEDAKA / "{assembly_id}/regions.txt"
     output:
         hdf = MEDAKA / "{assembly_id}/chunks/chunk_{chunk}.hdf"
     container:
@@ -101,7 +102,9 @@ def get_medaka_chunk_hdfs(wildcards):
 
 rule medaka_sequence:
     input:
-        get_medaka_chunk_hdfs
+        hdfs = get_medaka_chunk_hdfs,
+        chunks = directory(MEDAKA / "{assembly_id}/chunks"),
+        bam=MEDAKA / "{assembly_id}.calls_to_draft.bam",
     output:
         fasta = MEDAKA / "{assembly_id}.polished.fasta"
     container:
@@ -117,7 +120,7 @@ rule medaka_sequence:
     retries: len(get_escalation_order("medaka_sequence"))
     shell:
         r"""
-        medaka sequence {input} {output.fasta}
+        medaka sequence {input.hdfs} {output.fasta}
         """
 
 
