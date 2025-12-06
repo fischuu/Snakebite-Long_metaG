@@ -54,10 +54,17 @@ checkpoint split_regions:
         split -l {params.size} {input.regions} {output}/chunk_
         """
 
+#def get_medaka_chunks(wildcards):
+#    checkpoint_output = checkpoints.split_regions.get(**wildcards).output[0]
+#    # Get the chunk indices (numbers) dynamically
+#    chunk_files = glob_wildcards(os.path.join(checkpoint_output, "chunk_{i}")).i
+#    return chunk_files
+
 def get_medaka_chunks(wildcards):
     checkpoint_output = checkpoints.split_regions.get(**wildcards).output[0]
-    # Get the chunk indices (numbers) dynamically
-    chunk_files = glob_wildcards(os.path.join(checkpoint_output, "chunk_{i}")).i
+    # Only match chunk files without any extension
+    chunk_files = [f for f in glob_wildcards(os.path.join(checkpoint_output, "chunk_{i}")).i
+                   if not f.endswith((".hdf", ".log"))]
     return chunk_files
 
 
@@ -68,6 +75,8 @@ rule medaka_inference_chunk:
         regions = MEDAKA / "{assembly_id}/regions.txt"
     output:
         hdf = MEDAKA / "{assembly_id}/chunks/chunk_{chunk}.hdf"
+    log:
+        MEDAKA / "{assembly_id}/chunks/{assembly_id}_chunk_{chunk}.medaka_inference_chunk.log",
     container:
         docker["medaka"]
     threads: 1
@@ -86,14 +95,23 @@ rule medaka_inference_chunk:
             {input.bam} \
             {output.hdf} \
             --region $regions \
-            2> {output.hdf}.log
+            2> {log}
         """
 
 
+#def get_medaka_chunk_hdfs(wildcards):
+#    # Wait for split_regions checkpoint
+#    chunks = checkpoints.split_regions.get(**wildcards).output[0]
+#    chunk_ids = glob_wildcards(os.path.join(chunks, "chunk_{i}")).i
+#    return expand(MEDAKA / "{assembly_id}/chunks/chunk_{chunk}.hdf",
+#                  assembly_id=wildcards.assembly_id,
+#                  chunk=chunk_ids)
+
 def get_medaka_chunk_hdfs(wildcards):
     # Wait for split_regions checkpoint
-    chunks = checkpoints.split_regions.get(**wildcards).output[0]
-    chunk_ids = glob_wildcards(os.path.join(chunks, "chunk_{i}")).i
+    chunks_dir = checkpoints.split_regions.get(**wildcards).output[0]
+    chunk_ids = [f for f in glob_wildcards(os.path.join(chunks_dir, "chunk_{i}")).i
+                 if not f.endswith((".hdf", ".log"))]
     return expand(MEDAKA / "{assembly_id}/chunks/chunk_{chunk}.hdf",
                   assembly_id=wildcards.assembly_id,
                   chunk=chunk_ids)
@@ -107,6 +125,8 @@ rule medaka_sequence:
         bam=MEDAKA / "{assembly_id}.calls_to_draft.bam",
     output:
         fasta = MEDAKA / "{assembly_id}.polished.fasta"
+    log:
+        MEDAKA / "{assembly_id}.medaka_sequence.log",
     container:
         docker["medaka"]
     threads: 1
@@ -120,7 +140,8 @@ rule medaka_sequence:
     retries: len(get_escalation_order("medaka_sequence"))
     shell:
         r"""
-        medaka sequence {input.hdfs} {output.fasta}
+        medaka sequence {input.hdfs} {output.fasta} \
+                     2> {log} 1>&2
         """
 
 
