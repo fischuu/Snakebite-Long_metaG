@@ -15,5 +15,5 @@ preprocess__fastp__run: medium,large,highmem,longrun,highmem_longrun
 racon_run: medium,large,highmem,longrun,highmem_longrun
 reads__link_run: small,medium,large,highmem,longrun,highmem_longrun
 seqtk__run: medium,large,highmem,longrun,highmem_longrun
-spades_hybrid__run: large,highmem,longrun,highmem_longrun
+spades_hybrid__run: highmem_longrun
 strainy__run: medium,large,highmem,longrun,highmem_longrun

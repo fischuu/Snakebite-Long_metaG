@@ -122,30 +122,36 @@ rule medaka_sequence:
     input:
         hdfs = get_medaka_chunk_hdfs,
         chunks = directory(MEDAKA / "{assembly_id}/chunks"),
-        bam=MEDAKA / "{assembly_id}.calls_to_draft.bam",
+        bam = MEDAKA / "{assembly_id}.calls_to_draft.bam",
+        fa = RACON / "{assembly_id}.racon.fa.gz",
     output:
-        fasta = MEDAKA / "{assembly_id}.polished.fasta"
+        fasta = MEDAKA / "{assembly_id}.medaka.fa.gz"
     log:
         MEDAKA / "{assembly_id}.medaka_sequence.log",
     container:
         docker["medaka"]
     threads: 1
     resources:
-        runtime=esc("runtime", "medaka_sequence"),
-        mem_mb=esc("mem_mb", "medaka_sequence"),
-        cpus_per_task=esc("cpus", "medaka_sequence"),
-        slurm_partition=esc("partition", "medaka_sequence"),
-        gres=lambda wc, attempt: f"{get_resources(wc, attempt, 'medaka_sequence')['nvme']}",
-        attempt=get_attempt,
+        runtime = esc("runtime", "medaka_sequence"),
+        mem_mb = esc("mem_mb", "medaka_sequence"),
+        cpus_per_task = esc("cpus", "medaka_sequence"),
+        slurm_partition = esc("partition", "medaka_sequence"),
+        gres = lambda wc, attempt: f"{get_resources(wc, attempt, 'medaka_sequence')['nvme']}",
+        attempt = get_attempt,
     retries: len(get_escalation_order("medaka_sequence"))
+    params:
+        temp_fasta = lambda wildcards: MEDAKA / f"{wildcards.assembly_id}.temp_medaka_output.fasta"
     shell:
         r"""
-        medaka sequence {input.hdfs} {output.fasta} \
+        medaka sequence {input.hdfs} {input.fa} {params.temp_fasta} \
                      2> {log} 1>&2
+        gzip -c {params.temp_fasta} > {output.fasta}
+        rm {params.temp_fasta}
         """
+
 
 
 rule medaka:
     """Collect all Medaka results"""
     input:
-        [MEDAKA / f"{assembly_id}.polished.fasta" for assembly_id in ASSEMBLIES],
+        [MEDAKA / f"{assembly_id}.medaka.fa.gz" for assembly_id in ASSEMBLIES],
