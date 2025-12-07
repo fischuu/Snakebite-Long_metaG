@@ -7,7 +7,7 @@ import yaml
 import os
 
 DEBUG = False
-version = "0.1.44"
+version = "0.1.46"
 
 def debug(msg):
     if DEBUG:
@@ -86,17 +86,16 @@ include: "rules/__functions__.smk"
 include: "rules/folders.smk"
 include: "rules/link.smk"
 include: "rules/bwa.smk"
+include: "rules/cleanup.smk"
 include: "rules/fastp.smk"
 include: "rules/flye.smk"
 include: "rules/seqtk.smk"
 include: "rules/metaquast.smk"
 include: "rules/operams.smk"
-include: "rules/pilon.smk"
 include: "rules/polypolish.smk"
 include: "rules/racon.smk"
 include: "rules/medaka.smk"
 include: "rules/spades.smk"
-include: "rules/strainy.smk"
 
 debug("Subworkflows included. Ready to run.")
 
@@ -106,6 +105,4 @@ rule all:
         rules.metaquast.input,
         rules.operams.input,
         rules.polypolish.input,
-        rules.pilon.input,
         rules.spades.input,
-#        rules.strainy.input,

@@ -3,6 +3,8 @@
 
 Version 0.1.*:
 --------------
+46 cleanup started, long read assembies are now linked reported
+45: strainy and pilon removed
 44: chunk constrains and log files added
 43: Medaka is now running resource effective (inference on a single thread only...)
 42: Output bugfix for racon (fa.gz instead of fa)

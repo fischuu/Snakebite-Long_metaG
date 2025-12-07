@@ -15,7 +15,7 @@ def bams_for_assembly(wildcards):
 rule pilon_run:
     """Short-read polishing with Pilon"""
     input:
-        asm = MEDAKA / "{assembly_id}.medaka.fa.gz",
+        asm = POLYPOLISH / "{assembly_id}.polypolish.fa.gz",
         bams = bams_for_assembly,
     output:
         fa = PILON / "{assembly_id}.pilon.fa.gz",

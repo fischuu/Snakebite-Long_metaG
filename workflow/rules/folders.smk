@@ -20,3 +20,5 @@ POLYPOLISH = Path("results/polypolish/")
 RACON = Path("results/racon/")
 SPADES_HYBRID = Path("results/spades/")
 STRAINY = Path("results/strainy/")
+
+FINAL_LONG = Path("results/final_assemblies/long_reads")
